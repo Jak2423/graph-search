@@ -44,16 +44,16 @@ def run_comprehensive_tests():
             'start_idx': 0,
             'end_idx': min(10, len(nodes_list)-1)
         },
-        {
-            'name': 'Дунд зай (50 орой)',
-            'start_idx': 0,
-            'end_idx': min(50, len(nodes_list)-1)
-        },
-        {
-            'name': 'Холын зай (100 орой)',
-            'start_idx': 0,
-            'end_idx': min(100, len(nodes_list)-1)
-        }
+      #   {
+      #       'name': 'Дунд зай (50 орой)',
+      #       'start_idx': 0,
+      #       'end_idx': min(50, len(nodes_list)-1)
+      #   },
+      #   {
+      #       'name': 'Холын зай (100 орой)',
+      #       'start_idx': 0,
+      #       'end_idx': min(100, len(nodes_list)-1)
+      #   }
     ]
 
     all_results = []

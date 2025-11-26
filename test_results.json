@@ -1,0 +1,36 @@
+{
+  "graph_info": {
+    "nodes": 1927245,
+    "edges": 3978307,
+    "load_time": 53.74
+  },
+  "tests": [
+    {
+      "test_name": "Ойрхон зай (10 орой)",
+      "test_number": 1,
+      "results": {
+        "BFS": {
+          "found": true,
+          "distance": 0.37,
+          "path_length": 10,
+          "visited_count": 69,
+          "time_ms": 0.34
+        },
+        "DFS": {
+          "found": true,
+          "distance": 0.33,
+          "path_length": 11,
+          "visited_count": 11,
+          "time_ms": 0.02
+        },
+        "Dijkstra": {
+          "found": true,
+          "distance": 0.33,
+          "path_length": 11,
+          "visited_count": 85,
+          "time_ms": 0.22
+        }
+      }
+    }
+  ]
+}
