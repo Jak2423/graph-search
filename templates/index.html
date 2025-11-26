@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="mn">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Граф Хайлтын Алгоритм - Бие Даалт №1</title>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1400px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+				overflow: hidden;
+			}
+
+			.header {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 30px;
+				text-align: center;
+			}
+
+			.header h1 {
+				font-size: 2.5em;
+				margin-bottom: 10px;
+			}
+
+			.header p {
+				font-size: 1.2em;
+				opacity: 0.9;
+			}
+
+			.content {
+				display: grid;
+				grid-template-columns: 400px 1fr;
+				gap: 20px;
+				padding: 20px;
+			}
+
+			.sidebar {
+				background: #f8f9fa;
+				padding: 20px;
+				border-radius: 10px;
+			}
+
+			.form-group {
+				margin-bottom: 20px;
+			}
+
+			.form-group label {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 8px;
+				color: #333;
+			}
+
+			.form-group input,
+			.form-group select {
+				width: 100%;
+				padding: 12px;
+				border: 2px solid #ddd;
+				border-radius: 8px;
+				font-size: 14px;
+				transition: border-color 0.3s;
+			}
+
+			.form-group input:focus,
+			.form-group select:focus {
+				outline: none;
+				border-color: #667eea;
+			}
+
+			.algorithm-select {
+				display: flex;
+				gap: 10px;
+				margin-bottom: 20px;
+			}
+
+			.algo-btn {
+				flex: 1;
+				padding: 12px;
+				border: 2px solid #ddd;
+				background: white;
+				border-radius: 8px;
+				cursor: pointer;
+				font-weight: 600;
+				transition: all 0.3s;
+			}
+
+			.algo-btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			.algo-btn.active {
+				background: #667eea;
+				color: white;
+				border-color: #667eea;
+			}
+
+			.btn {
+				width: 100%;
+				padding: 15px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-size: 16px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: transform 0.3s;
+				margin-bottom: 10px;
+			}
+
+			.btn:hover {
+				transform: translateY(-2px);
+			}
+
+			.btn:active {
+				transform: translateY(0);
+			}
+
+			.btn-secondary {
+				background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+			}
+
+			#map {
+				height: 600px;
+				border-radius: 10px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+				cursor: crosshair;
+			}
+
+			.info-box {
+				background: #f8f9fa;
+				padding: 20px;
+				border-radius: 10px;
+				margin-top: 20px;
+			}
+
+			.info-item {
+				display: flex;
+				justify-content: space-between;
+				padding: 10px 0;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.info-item:last-child {
+				border-bottom: none;
+			}
+
+			.info-label {
+				font-weight: 600;
+				color: #555;
+			}
+
+			.info-value {
+				color: #667eea;
+				font-weight: 600;
+			}
+
+			.loading {
+				text-align: center;
+				padding: 20px;
+				display: none;
+			}
+
+			.spinner {
+				border: 4px solid #f3f3f3;
+				border-top: 4px solid #667eea;
+				border-radius: 50%;
+				width: 40px;
+				height: 40px;
+				animation: spin 1s linear infinite;
+				margin: 0 auto;
+			}
+
+			@keyframes spin {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+
+			.comparison-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 20px;
+			}
+
+			.comparison-table th,
+			.comparison-table td {
+				padding: 12px;
+				text-align: left;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.comparison-table th {
+				background: #667eea;
+				color: white;
+				font-weight: 600;
+			}
+
+			.comparison-table tr:hover {
+				background: #f8f9fa;
+			}
+
+			.legend {
+				background: white;
+				padding: 15px;
+				border-radius: 8px;
+				margin-top: 20px;
+			}
+
+			.legend-item {
+				display: flex;
+				align-items: center;
+				margin-bottom: 10px;
+			}
+
+			.legend-color {
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				margin-right: 10px;
+			}
+
+			.error-message {
+				background: #ff4444;
+				color: white;
+				padding: 15px;
+				border-radius: 8px;
+				margin-top: 10px;
+				display: none;
+			}
+
+			.success-message {
+				background: #00c851;
+				color: white;
+				padding: 15px;
+				border-radius: 8px;
+				margin-top: 10px;
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>🗺️ Граф Хайлтын Алгоритм</h1>
+				<p>BFS, DFS, Dijkstra - OpenStreetMap өгөгдөл дээр</p>
+			</div>
+
+			<div class="content">
+				<div class="sidebar">
+					<h3 style="margin-bottom: 20px">Тохиргоо</h3>
+
+					<div
+						style="
+							background: #e8f5e9;
+							padding: 15px;
+							border-radius: 8px;
+							margin-bottom: 20px;
+							border-left: 4px solid #2ecc71;
+						"
+					>
+						<p
+							id="mapInstruction"
+							style="margin: 0; font-weight: 600; font-size: 14px; color: #2ecc71"
+						>
+							🟢 Газрын зураг дээр дарж эхлэх цэгийг сонгоно уу
+						</p>
+					</div>
+
+					<button
+						class="btn"
+						onclick="resetPoints()"
+						style="
+							background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+							margin-bottom: 20px;
+						"
+					>
+						🔄 Цэгүүдийг дахин сонгох
+					</button>
+
+					<div class="form-group">
+						<label>Алгоритм сонгох:</label>
+						<div class="algorithm-select">
+							<button class="algo-btn active" data-algo="bfs">BFS</button>
+							<button class="algo-btn" data-algo="dfs">DFS</button>
+							<button class="algo-btn" data-algo="dijkstra">Dijkstra</button>
+						</div>
+					</div>
+
+					<h4 style="margin-bottom: 10px">
+						Координатууд
+						<small style="color: #999; font-weight: normal"
+							>(зураг дээр дарж эсвэл гараар оруулна)</small
+						>
+					</h4>
+
+					<div
+						style="
+							background: #f8f9fa;
+							padding: 15px;
+							border-radius: 8px;
+							margin-bottom: 15px;
+						"
+					>
+						<p style="margin: 0 0 10px 0; font-weight: 600; color: #2ecc71">🟢 Эхлэх цэг</p>
+						<div class="form-group" style="margin-bottom: 10px">
+							<label style="font-size: 12px">Өргөрөг (Latitude):</label>
+							<input
+								type="number"
+								id="start_lat"
+								step="0.0001"
+								placeholder="Зураг дээр дарна уу"
+							/>
+						</div>
+						<div class="form-group" style="margin-bottom: 0">
+							<label style="font-size: 12px">Уртраг (Longitude):</label>
+							<input
+								type="number"
+								id="start_lon"
+								step="0.0001"
+								placeholder="Зураг дээр дарна уу"
+							/>
+						</div>
+					</div>
+
+					<div
+						style="
+							background: #f8f9fa;
+							padding: 15px;
+							border-radius: 8px;
+							margin-bottom: 20px;
+						"
+					>
+						<p style="margin: 0 0 10px 0; font-weight: 600; color: #e74c3c">🔴 Төгсгөх цэг</p>
+						<div class="form-group" style="margin-bottom: 10px">
+							<label style="font-size: 12px">Өргөрөг (Latitude):</label>
+							<input
+								type="number"
+								id="end_lat"
+								step="0.0001"
+								placeholder="Зураг дээр дарна уу"
+							/>
+						</div>
+						<div class="form-group" style="margin-bottom: 0">
+							<label style="font-size: 12px">Уртраг (Longitude):</label>
+							<input
+								type="number"
+								id="end_lon"
+								step="0.0001"
+								placeholder="Зураг дээр дарна уу"
+							/>
+						</div>
+					</div>
+
+					<button class="btn" onclick="searchPath()">🔍 Зам хайх</button>
+					<button class="btn btn-secondary" onclick="compareAlgorithms()">
+						📊 Харьцуулах
+					</button>
+
+					<div class="error-message" id="errorMessage"></div>
+					<div class="success-message" id="successMessage"></div>
+
+					<div class="loading" id="loading">
+						<div class="spinner"></div>
+						<p style="margin-top: 10px">Ачаалж байна...</p>
+					</div>
+
+					<div class="info-box" id="infoBox" style="display: none">
+						<h4 style="margin-bottom: 15px">Үр дүн</h4>
+						<div class="info-item">
+							<span class="info-label">Алгоритм:</span>
+							<span class="info-value" id="resultAlgo">-</span>
+						</div>
+						<div class="info-item">
+							<span class="info-label">Зай:</span>
+							<span class="info-value" id="resultDistance">-</span>
+						</div>
+						<div class="info-item">
+							<span class="info-label">Замын урт:</span>
+							<span class="info-value" id="resultPathLength">-</span>
+						</div>
+						<div class="info-item">
+							<span class="info-label">Хайсан орой:</span>
+							<span class="info-value" id="resultVisited">-</span>
+						</div>
+					</div>
+
+					<div class="legend">
+						<h4 style="margin-bottom: 15px">Тэмдэглэгээ</h4>
+						<div class="legend-item">
+							<div class="legend-color" style="background: green"></div>
+							<span>Эхлэх цэг</span>
+						</div>
+						<div class="legend-item">
+							<div class="legend-color" style="background: red"></div>
+							<span>Төгсгөх цэг</span>
+						</div>
+						<div class="legend-item">
+							<div class="legend-color" style="background: orange"></div>
+							<span>Хайсан оройнууд</span>
+						</div>
+						<div class="legend-item">
+							<div class="legend-color" style="background: blue"></div>
+							<span>Олдсон зам</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="main-content">
+					<div id="map"></div>
+
+					<div id="comparisonResults" style="display: none">
+						<h3 style="margin-top: 20px; margin-bottom: 15px">Харьцуулалт</h3>
+						<table class="comparison-table">
+							<thead>
+								<tr>
+									<th>Алгоритм</th>
+									<th>Зам олдсон</th>
+									<th>Зай (км)</th>
+									<th>Замын урт</th>
+									<th>Хайсан орой</th>
+									<th>Хугацаа (мс)</th>
+								</tr>
+							</thead>
+							<tbody id="comparisonTableBody"></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// Газрын зураг эхлүүлэх
+			const map = L.map('map').setView([47.9186, 106.9177], 13);
+
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '© OpenStreetMap contributors',
+			}).addTo(map);
+
+			let startMarker = null;
+			let endMarker = null;
+			let pathLayer = null;
+			let visitedLayer = null;
+			let selectedAlgorithm = 'bfs';
+			let settingPoint = 'start'; // 'start' or 'end'
+
+			// Алгоритм сонгох
+			document.querySelectorAll('.algo-btn').forEach((btn) => {
+				btn.addEventListener('click', function () {
+					document.querySelectorAll('.algo-btn').forEach((b) => b.classList.remove('active'));
+					this.classList.add('active');
+					selectedAlgorithm = this.dataset.algo;
+				});
+			});
+
+			// Газрын зураг дээр дарахад координат авах
+			map.on('click', function (e) {
+				const lat = e.latlng.lat;
+				const lon = e.latlng.lng;
+
+				if (settingPoint === 'start') {
+					// Remove old start marker if exists
+					if (startMarker) {
+						map.removeLayer(startMarker);
+					}
+
+					// Set coordinates
+					document.getElementById('start_lat').value = lat.toFixed(4);
+					document.getElementById('start_lon').value = lon.toFixed(4);
+
+					// Add green marker
+					startMarker = L.marker([lat, lon], {
+						icon: L.icon({
+							iconUrl:
+								'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+							shadowUrl:
+								'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+							iconSize: [25, 41],
+							iconAnchor: [12, 41],
+							popupAnchor: [1, -34],
+							shadowSize: [41, 41],
+						}),
+					})
+						.addTo(map)
+						.bindPopup('Эхлэх цэг')
+						.openPopup();
+
+					// Switch to end point
+					settingPoint = 'end';
+					updateMapInstruction();
+				} else {
+					// Remove old end marker if exists
+					if (endMarker) {
+						map.removeLayer(endMarker);
+					}
+
+					// Set coordinates
+					document.getElementById('end_lat').value = lat.toFixed(4);
+					document.getElementById('end_lon').value = lon.toFixed(4);
+
+					// Add red marker
+					endMarker = L.marker([lat, lon], {
+						icon: L.icon({
+							iconUrl:
+								'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+							shadowUrl:
+								'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+							iconSize: [25, 41],
+							iconAnchor: [12, 41],
+							popupAnchor: [1, -34],
+							shadowSize: [41, 41],
+						}),
+					})
+						.addTo(map)
+						.bindPopup('Төгсгөх цэг')
+						.openPopup();
+
+					// Switch back to start point for next time
+					settingPoint = 'start';
+					updateMapInstruction();
+				}
+			});
+
+			function updateMapInstruction() {
+				const instruction = document.getElementById('mapInstruction');
+				if (settingPoint === 'start') {
+					instruction.textContent = '🟢 Газрын зураг дээр дарж эхлэх цэгийг сонгоно уу';
+					instruction.style.color = '#2ecc71';
+				} else {
+					instruction.textContent = '🔴 Газрын зураг дээр дарж төгсгөх цэгийг сонгоно уу';
+					instruction.style.color = '#e74c3c';
+				}
+			}
+
+			function resetPoints() {
+				if (startMarker) map.removeLayer(startMarker);
+				if (endMarker) map.removeLayer(endMarker);
+				if (pathLayer) map.removeLayer(pathLayer);
+				if (visitedLayer) map.removeLayer(visitedLayer);
+
+				startMarker = null;
+				endMarker = null;
+				pathLayer = null;
+				visitedLayer = null;
+				settingPoint = 'start';
+
+				document.getElementById('start_lat').value = '';
+				document.getElementById('start_lon').value = '';
+				document.getElementById('end_lat').value = '';
+				document.getElementById('end_lon').value = '';
+				document.getElementById('infoBox').style.display = 'none';
+				document.getElementById('comparisonResults').style.display = 'none';
+
+				updateMapInstruction();
+			}
+
+			function showLoading() {
+				document.getElementById('loading').style.display = 'block';
+				document.getElementById('errorMessage').style.display = 'none';
+				document.getElementById('successMessage').style.display = 'none';
+			}
+
+			function hideLoading() {
+				document.getElementById('loading').style.display = 'none';
+			}
+
+			function showError(message) {
+				const errorDiv = document.getElementById('errorMessage');
+				errorDiv.textContent = message;
+				errorDiv.style.display = 'block';
+				setTimeout(() => {
+					errorDiv.style.display = 'none';
+				}, 5000);
+			}
+
+			function showSuccess(message) {
+				const successDiv = document.getElementById('successMessage');
+				successDiv.textContent = message;
+				successDiv.style.display = 'block';
+				setTimeout(() => {
+					successDiv.style.display = 'none';
+				}, 5000);
+			}
+
+			async function searchPath() {
+				const startLat = parseFloat(document.getElementById('start_lat').value);
+				const startLon = parseFloat(document.getElementById('start_lon').value);
+				const endLat = parseFloat(document.getElementById('end_lat').value);
+				const endLon = parseFloat(document.getElementById('end_lon').value);
+
+				if (isNaN(startLat) || isNaN(startLon) || isNaN(endLat) || isNaN(endLon)) {
+					showError('Координатуудыг зөв оруулна уу!');
+					return;
+				}
+
+				showLoading();
+
+				try {
+					const response = await fetch('/api/search', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							algorithm: selectedAlgorithm,
+							start_lat: startLat,
+							start_lon: startLon,
+							end_lat: endLat,
+							end_lon: endLon,
+						}),
+					});
+
+					const data = await response.json();
+
+					if (data.status === 'success' && data.found) {
+						// Remove old paths
+						if (pathLayer) map.removeLayer(pathLayer);
+						if (visitedLayer) map.removeLayer(visitedLayer);
+
+						// Хайсан оройнууд (жижиг цэгүүд)
+						visitedLayer = L.layerGroup();
+						data.visited.forEach((coord) => {
+							L.circleMarker(coord, {
+								radius: 2,
+								color: 'orange',
+								fillColor: 'orange',
+								fillOpacity: 0.3,
+							}).addTo(visitedLayer);
+						});
+						visitedLayer.addTo(map);
+
+						// Олдсон зам (шугам)
+						pathLayer = L.polyline(data.path, {
+							color: 'blue',
+							weight: 5,
+							opacity: 0.8,
+						}).addTo(map);
+
+						// Update markers if they don't exist
+						if (!startMarker) {
+							startMarker = L.marker([startLat, startLon], {
+								icon: L.icon({
+									iconUrl:
+										'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+									shadowUrl:
+										'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+									iconSize: [25, 41],
+									iconAnchor: [12, 41],
+									popupAnchor: [1, -34],
+									shadowSize: [41, 41],
+								}),
+							})
+								.addTo(map)
+								.bindPopup('Эхлэх');
+						}
+
+						if (!endMarker) {
+							endMarker = L.marker([endLat, endLon], {
+								icon: L.icon({
+									iconUrl:
+										'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+									shadowUrl:
+										'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+									iconSize: [25, 41],
+									iconAnchor: [12, 41],
+									popupAnchor: [1, -34],
+									shadowSize: [41, 41],
+								}),
+							})
+								.addTo(map)
+								.bindPopup('Төгсгөх');
+						}
+
+						// Зураг дээр томруулах
+						map.fitBounds(pathLayer.getBounds(), { padding: [50, 50] });
+
+						// Үр дүнг харуулах
+						document.getElementById('infoBox').style.display = 'block';
+						document.getElementById('resultAlgo').textContent = data.algorithm.toUpperCase();
+						document.getElementById('resultDistance').textContent = data.distance + ' км';
+						document.getElementById('resultPathLength').textContent =
+							data.path_length + ' орой';
+						document.getElementById('resultVisited').textContent =
+							data.visited_count + ' орой';
+
+						showSuccess('Зам амжилттай олдлоо!');
+					} else {
+						showError('Зам олдсонгүй!');
+					}
+				} catch (error) {
+					showError('Алдаа гарлаа: ' + error.message);
+				} finally {
+					hideLoading();
+				}
+			}
+
+			async function compareAlgorithms() {
+				const startLat = parseFloat(document.getElementById('start_lat').value);
+				const startLon = parseFloat(document.getElementById('start_lon').value);
+				const endLat = parseFloat(document.getElementById('end_lat').value);
+				const endLon = parseFloat(document.getElementById('end_lon').value);
+
+				if (isNaN(startLat) || isNaN(startLon) || isNaN(endLat) || isNaN(endLon)) {
+					showError('Координатуудыг зөв оруулна уу!');
+					return;
+				}
+
+				showLoading();
+
+				try {
+					const response = await fetch('/api/compare', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							start_lat: startLat,
+							start_lon: startLon,
+							end_lat: endLat,
+							end_lon: endLon,
+						}),
+					});
+
+					const data = await response.json();
+
+					if (data.status === 'success') {
+						const tbody = document.getElementById('comparisonTableBody');
+						tbody.innerHTML = '';
+
+						['bfs', 'dfs', 'dijkstra'].forEach((algo) => {
+							const result = data.results[algo];
+							const row = document.createElement('tr');
+							row.innerHTML = `
+                            <td><strong>${algo.toUpperCase()}</strong></td>
+                            <td>${result.found ? '✅ Тийм' : '❌ Үгүй'}</td>
+                            <td>${result.distance} км</td>
+                            <td>${result.path_length} орой</td>
+                            <td>${result.visited_count} орой</td>
+                            <td>${result.execution_time_ms} мс</td>
+                        `;
+							tbody.appendChild(row);
+						});
+
+						document.getElementById('comparisonResults').style.display = 'block';
+						showSuccess('Харьцуулалт амжилттай!');
+					} else {
+						showError('Харьцуулалт хийхэд алдаа гарлаа!');
+					}
+				} catch (error) {
+					showError('Алдаа гарлаа: ' + error.message);
+				} finally {
+					hideLoading();
+				}
+			}
+
+			// Initialize map instruction
+			updateMapInstruction();
+		</script>
+	</body>
+</html>

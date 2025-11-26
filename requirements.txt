@@ -1,0 +1,10 @@
+geopandas==0.14.1
+networkx==3.2.1
+shapely==2.0.2
+numpy==1.26.2
+flask==3.0.0
+flask-cors==4.0.0
+folium==0.15.1
+matplotlib==3.8.2
+pandas==2.1.4
+
